@@ -56,6 +56,3 @@ while True:
             connectionSocket.send('Por favor, digite um número válido'.encode('utf-8'))
     
     connectionSocket.close()
-    logging.info("Conexão encerrada. Aguardando novo cliente...")
-    num = randint(0, 100)
-    logging.debug(f"Novo número secreto (DEBUG): {num}")
