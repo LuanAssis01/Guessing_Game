@@ -1,65 +1,65 @@
-from socket import *
-from random import randint
-import logging
-from datetime import datetime
+from socket import *            
+from random import randint      
+import logging                  
+import threading               
 
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('server.log'),
-        logging.StreamHandler()
+        logging.FileHandler('server.log'),  
+        logging.StreamHandler()             
     ]
 )
 
-serverPort = 12001
-serverName = 'localhost'
+serverPort = 12001        
+serverName = 'localhost'   
 
 serverSocket = socket(AF_INET, SOCK_STREAM)
 serverSocket.bind((serverName, serverPort))
-serverSocket.listen(1)
+serverSocket.listen(5)  
 
-num = randint(0, 100)
 logging.info(f"Servidor iniciado e pronto para conexões na porta {serverPort}")
-logging.debug(f"Número secreto (DEBUG): {num}")
 
-while True:
-    connectionSocket, addr = serverSocket.accept()
-    logging.info(f"Conexão estabelecida com {addr}")
-    
+def handle_client(connectionSocket, addr):
+    num = randint(0, 100)  
+    logging.info(f"Conexão iniciada com {addr} | Número secreto: {num}")
+
     while True:
-        data = connectionSocket.recv(1024).decode('utf-8')
-        if not data:
-            logging.info("Conexão encerrada pelo cliente")
-            break
-
         try:
+            data = connectionSocket.recv(1024).decode('utf-8')
+            if not data:
+                logging.info(f"Conexão encerrada por {addr}")
+                break
+
             guess_str, attempts_str = data.split(',')
             guess = int(guess_str)
             attempts = int(attempts_str)
-            logging.info(f"Recebido palpite: {guess} (tentativa {attempts})")
+
+            logging.info(f"[{addr}] Palpite: {guess} (tentativa {attempts})")
 
             if guess < 0 or guess > 100:
                 response = f'O número {guess} está fora do intervalo estabelecido'
-                logging.debug(response)
             elif guess < num:
                 response = f'O número {guess} é menor que o número secreto'
-                logging.debug(response)
             elif guess > num:
                 response = f'O número {guess} é maior que o número secreto'
-                logging.debug(response)
             else:
                 response = f'Parabéns! Você acertou o número {num} após {attempts} tentativas'
-                logging.info(f"Cliente acertou o número: {num}")
                 connectionSocket.send(response.encode('utf-8'))
                 break
 
             connectionSocket.send(response.encode('utf-8'))
 
         except ValueError:
-            error_msg = f"Valor inválido recebido: {data}"
-            logging.warning(error_msg)
+            logging.warning(f"[{addr}] Valor inválido recebido: {data}")
             connectionSocket.send('Por favor, digite um número válido'.encode('utf-8'))
 
-    
     connectionSocket.close()
+    logging.info(f"Conexão finalizada com {addr}")
+
+
+while True:
+    connectionSocket, addr = serverSocket.accept()
+    client_thread = threading.Thread(target=handle_client, args=(connectionSocket, addr))
+    client_thread.start()
