@@ -1,5 +1,5 @@
-servidor: 
+up: 
 	python3 server_tcp.py
 
-cliente: 
+conn: 
 	python3 client_tcp.py

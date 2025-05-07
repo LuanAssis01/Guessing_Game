@@ -16,12 +16,12 @@ Para facilitar a execução do projeto, tenha o Makefile instalado. Você pode b
 
 1. Primeiro, inicie o servidor:
 ```bash
-make servidor
+make up
 ```
 
 2. Em outro terminal, inicie o cliente:
 ```bash
-make cliente
+make conn
 ```
 
 ## Pronto Agora é só se divertir!
