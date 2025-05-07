@@ -37,7 +37,10 @@ while True:
             guess = int(data)
             logging.info(f"Recebido palpite: {guess}")
             
-            if guess < num:
+            if guess < 0 or guess > 100:
+                response = f'O número {guess} está fora do intervalo estabelecido'
+                logging.debug(response)
+            elif guess < num:
                 response = f'O número {guess} é menor que o número secreto'
                 logging.debug(response)
             elif guess > num:
