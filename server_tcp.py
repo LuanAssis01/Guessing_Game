@@ -32,11 +32,13 @@ while True:
         if not data:
             logging.info("Conexão encerrada pelo cliente")
             break
-            
+
         try:
-            guess = int(data)
-            logging.info(f"Recebido palpite: {guess}")
-            
+            guess_str, attempts_str = data.split(',')
+            guess = int(guess_str)
+            attempts = int(attempts_str)
+            logging.info(f"Recebido palpite: {guess} (tentativa {attempts})")
+
             if guess < 0 or guess > 100:
                 response = f'O número {guess} está fora do intervalo estabelecido'
                 logging.debug(response)
@@ -47,15 +49,17 @@ while True:
                 response = f'O número {guess} é maior que o número secreto'
                 logging.debug(response)
             else:
-                response = f'Parabéns! Você acertou o número {num}'
+                response = f'Parabéns! Você acertou o número {num} após {attempts} tentativas'
                 logging.info(f"Cliente acertou o número: {num}")
                 connectionSocket.send(response.encode('utf-8'))
                 break
-                
+
             connectionSocket.send(response.encode('utf-8'))
+
         except ValueError:
             error_msg = f"Valor inválido recebido: {data}"
             logging.warning(error_msg)
             connectionSocket.send('Por favor, digite um número válido'.encode('utf-8'))
+
     
     connectionSocket.close()
